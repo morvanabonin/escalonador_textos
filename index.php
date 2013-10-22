@@ -2,7 +2,7 @@
     <head>
         <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
         <link rel="stylesheet" type="text/css" href="css/style.css">
-        <link rel="stylesheet" type="text/css" href="public/css/bootstrap-responsive.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css">
     </head>
     <body>
         <div class="container">
@@ -23,7 +23,7 @@
                         <div class="control-group">
                           <label class="control-label" for="inputTexto2">Texto 2 </label>
                           <div class="controls">
-                            <input type="text" name="texto2" id="texto2" class="input-xlarge" placeholder="[0-255]">
+                            <input type="text" name="texto2" id="texto2" class="input-xlarge" placeholder="[0-255]">6
                           </div>
                         </div>
                         <div class="control-group">
