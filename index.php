@@ -23,7 +23,7 @@
                         <div class="control-group">
                           <label class="control-label" for="inputTexto2">Texto 2 </label>
                           <div class="controls">
-                            <input type="text" name="texto2" id="texto2" class="input-xlarge" placeholder="[0-255]">6
+                            <input type="text" name="texto2" id="texto2" class="input-xlarge" placeholder="[0-255]">
                           </div>
                         </div>
                         <div class="control-group">
@@ -35,7 +35,7 @@
                         <div class="control-group">
                           <label class="control-label" for="inputTexto1">Time Slice </label>
                           <div class="controls">
-                              <input type="text" name="tslice" id="tslice" class="tslice" placeholder="[1-255]">
+                              <input type="text" name="tslice" id="tslice" class="tslice" placeholder="[1-10]">
                           </div>
                         </div>
                         <div class="control-group">
@@ -88,23 +88,93 @@ class Escalonador {
         $arrayTexto1 = str_split($this->texto1);
         $arrayTexto2 = str_split($this->texto2);
         $arrayTexto3 = str_split($this->texto3);
-        
-        $this->escalonator($arrayTexto1, $arrayTexto2, $arrayTexto3, $this->velocidade, $this->time_slice);
-        
-    }
-    
-    private function escalonator($arrayTexto1, $arrayTexto2, $arrayTexto3, $velocidade, $tslice) {
-        $texto = array( 0 => $arrayTexto1,
+
+        $processos = array( 0 => $arrayTexto1,
                         1 => $arrayTexto2,
                         2 => $arrayTexto3,
                       );           
-        foreach ($texto as $index => $palavras) {
-          echo '<pre>'. print_r ($palavras, 1). '</pre>';  
-            foreach ($palavras as $key => $letra) {
-              echo '<pre>'. print_r ($letra, 1). '</pre>';  
-                
-            }     
-        }     
+        
+        $retorno = $this->escalonator($processos, $this->velocidade, $this->time_slice);
+        //echo '<pre>Processando: '. print_r ($retorno). '</pre>'
+        //$this->logEscalonator($retorno);
+        var_dump($ret);
+        
+    }
+
+    //Passagem de retorno por referência para guardar a posição de acordo com a chave do array.
+    private function guardaResultado($letra, $key, &$retorno) {
+      foreach($retorno as $index => &$posicao) {
+        if ($posicao[count($posicao)-1] == "#") {
+          continue;
+        }
+
+        if ($index == $key) {
+          array_push($posicao, $letra);
+        }
+        else {
+          array_push($posicao, "*"); 
+        }
+      }
+    }
+    
+    private function escalonator(&$processos, $velocidade, &$tslice) {
+        $retorno = array();
+        foreach ($processos as $key => $value) {
+            $retorno[$key] = array();
+        }
+
+        while (count($processos) > 0) {
+          foreach ($processos as $key => &$processo) {
+            if ($tslice === 0) {
+              return $retorno;
+            }
+
+            //echo '<pre>Processando: '. print_r ($processo, 1). '</pre>';  
+
+            $caracteresProcessados = 0;
+            while ($caracteresProcessados < $velocidade && count($processo) > 0) {
+              $letra = array_shift($processo);
+              $this->guardaResultado($letra, $key, $retorno);
+              $caracteresProcessados++;
+            }
+
+            if (count($processo) == 0) {
+              array_push($retorno[$key], "#");
+              unset($processos[$key]);
+            }
+
+            $tslice--;
+          }
+        }
+        return $retorno;
+    }
+
+    private function logEscalonator($retorno){
+        $arquivo = 'log.txt';
+        //pega o root de onde está a pasta, seja no Windows ou Linux
+        $dir =  $_SERVER['DOCUMENT_ROOT']."/";
+
+        //Verifica se existe a pasta 'logs', se não existe, cria com permissão 0777
+        if (! dir( $dir.'logs')) {
+          mkdir($dir.'logs', 0777);
+        } 
+
+        //pega o root mais a pasta criada ou já existente
+        $logs = $dir.'logs/'.$arquivo;
+
+        //verifica se o arquivo existe dentro da pasta logs, se não existe ele 
+        //cria e dá permissão, além de abri-lo para a escrita.
+        if(! file_exists($logs)){
+          $logs = fopen($logs, 'a');
+        } else {
+          $logs = fopen($logs, 'a');  
+        }
+
+        //Escreve no arquivo.
+        $escreve = fwrite($logs, $retorno);
+
+        //Fecha e salva o arquivo
+        fclose($logs);
     }
 }
 
