@@ -35,7 +35,7 @@
                         <div class="control-group">
                           <label class="control-label" for="inputTexto1">Time Slice </label>
                           <div class="controls">
-                              <input type="text" name="tslice" id="tslice" class="tslice" placeholder="[1-10]">
+                              <input type="text" name="tslice" id="tslice" class="tslice" placeholder="[1-255]">
                           </div>
                         </div>
                         <div class="control-group">
@@ -56,6 +56,7 @@
             <div class="row">
                 <div class=" offset1 span2 well align-center">
                     <p>Time</p>
+                    <?php echo $this->showData(); ?>
                 </div>
                 <div class="span2 well align-center">
                     <p>Time Slice</p>
@@ -96,9 +97,12 @@ class Escalonador {
         
         $retorno = $this->escalonator($processos, $this->velocidade, $this->time_slice);
         //echo '<pre>Processando: '. print_r ($retorno). '</pre>'
-        //$this->logEscalonator($retorno);
-        var_dump($ret);
-        
+        $this->logEscalonator($retorno);
+        var_dump($retorno);
+    }
+
+    public function showData() {
+        return count($retorno);
     }
 
     //Passagem de retorno por referência para guardar a posição de acordo com a chave do array.
@@ -125,11 +129,13 @@ class Escalonador {
 
         while (count($processos) > 0) {
           foreach ($processos as $key => &$processo) {
-            if ($tslice === 0) {
-              return $retorno;
-            }
-
-            //echo '<pre>Processando: '. print_r ($processo, 1). '</pre>';  
+            //var_dump($processo);
+            //if ($tslice == 0) {
+              //var_dump($tslice);
+              //var_dump($retorno);
+              //$this->logEscalonator($retorno);
+              //return $retorno;
+            //}
 
             $caracteresProcessados = 0;
             while ($caracteresProcessados < $velocidade && count($processo) > 0) {
@@ -143,16 +149,17 @@ class Escalonador {
               unset($processos[$key]);
             }
 
-            $tslice--;
+            //$tslice--;
           }
         }
         return $retorno;
     }
 
     private function logEscalonator($retorno){
+
         $arquivo = 'log.txt';
         //pega o root de onde está a pasta, seja no Windows ou Linux
-        $dir =  $_SERVER['DOCUMENT_ROOT']."/";
+        $dir =  $_SERVER['DOCUMENT_ROOT'];
 
         //Verifica se existe a pasta 'logs', se não existe, cria com permissão 0777
         if (! dir( $dir.'logs')) {
@@ -165,14 +172,20 @@ class Escalonador {
         //verifica se o arquivo existe dentro da pasta logs, se não existe ele 
         //cria e dá permissão, além de abri-lo para a escrita.
         if(! file_exists($logs)){
-          $logs = fopen($logs, 'a');
+          $logs = fopen($logs, 'w');
         } else {
-          $logs = fopen($logs, 'a');  
+          $logs = fopen($logs, 'w');  
         }
 
         //Escreve no arquivo.
-        $escreve = fwrite($logs, $retorno);
-
+        foreach ($retorno as $key => $caracteres) {
+          foreach ($caracteres as $key => $caracter) {
+            $escreve = fwrite($logs, $caracter);
+            if ($caracter == '#') {
+              $escreve = fwrite($logs, "\n"); 
+            }
+          }
+        }
         //Fecha e salva o arquivo
         fclose($logs);
     }
